@@ -134,7 +134,7 @@ class Context_Veracity():
         bcv_v.append(v)
     bcv_d = {'title_count': bcv_tc, 'veracity': bcv_v}
     bcv_e_X_train = pd.DataFrame(data=bcv_d)
-    from google_drive_downloader import GoogleDriveDownloader as gdd
+    
     gdd.download_file_from_google_drive(file_id='1Pu0D6GffO5fBgXVCVnKcEAPr9lrbAYfK',
                                       dest_path='./bcv_encoder.zip',
                                       unzip=False)
@@ -142,14 +142,14 @@ class Context_Veracity():
     for file in archive.namelist():
         archive.extract(file, '/content/')
     bcv_encoder = keras.models.load_model('/content/bcv_encoder')
-    bcv_e_X_train = bcv_encoder.predict(df_posts[['title_count', 'veracity']])
+    bcv_e_X_train = bcv_encoder.predict(bcv_e_X_train[['title_count', 'veracity']])
     
     return bcv_e_X_train
   
   #Method for Liar dataset
   def liar_encode(self, X_train):
     train_news = X_train
-    train_news = train_news.dropna(subset=['label'])
+    #train_news = train_news.dropna(subset=['label'])
     import pandas as pd
     import numpy as np
     from sklearn.preprocessing import LabelEncoder
@@ -157,27 +157,32 @@ class Context_Veracity():
     # creating instance of labelencoder
     labelencoder = LabelEncoder()
     # Assigning numerical values and storing in another column
-    train_news['label_cat'] = labelencoder.fit_transform(train_news['label'])
+    #train_news['label_cat'] = labelencoder.fit_transform(train_news['label'])
     train_news['veracity'] = 0
     #Find veracity
     for index, row in train_news.iterrows():
-      if (train_news.loc[index, 'label'] == 'pants_fire') | (train_news.loc[index, 'label'] == 'barely_true') | (train_news.loc[index, 'label'] == 'false'):
-        if (train_news.loc[index, 'barelytruecounts'] > 4) | (train_news.loc[index, 'falsecounts'] >= 2) | (train_news.loc[index, 'pantsonfirecounts'] >= 1):
-          train_news.loc[index,'veracity'] = 1
-        else:
-          train_news.loc[index,'veracity'] = 0
+      if (train_news.loc[index, 'barelytruecounts'] > 4) | (train_news.loc[index, 'falsecounts'] >= 2) | (train_news.loc[index, 'pantsonfirecounts'] >= 1):
+        train_news.loc[index,'veracity'] = 1
       else:
         if (train_news.loc[index, 'halftruecounts'] >= 2) | (train_news.loc[index, 'mostlytruecounts'] >= 1):
-          train_news.loc[index,'veracity'] = 1
-        else:
           train_news.loc[index,'veracity'] = 0
-
+        
     train_news = train_news.dropna(how='any',axis=0)
-    train_news = train_news.rename(columns={'headline_text': 'Statement', 'speaker': 'Source', 'label': 'Label'})
+    train_news = train_news.rename(columns={'headline_text': 'Statement', 'speaker': 'Source'})
 
     #Find source count
     col_to_avg = ['barelytruecounts', 'falsecounts', 'pantsonfirecounts', 'halftruecounts', 'mostlytruecounts']
     train_news['title_count'] = train_news[col_to_avg].mean(axis=1)
     train_news['title_count'] = train_news['title_count'].astype(int)
-
+    
+    gdd.download_file_from_google_drive(file_id='1Pu0D6GffO5fBgXVCVnKcEAPr9lrbAYfK',
+                                      dest_path='./bcv_encoder.zip',
+                                      unzip=False)
+    archive = ZipFile('bcv_encoder.zip')
+    for file in archive.namelist():
+        archive.extract(file, '/content/')
+    bcv_encoder = keras.models.load_model('/content/bcv_encoder')
+    bcv_e_X_train = bcv_encoder.predict(train_news[['title_count', 'veracity']])
+    
+    return bcv_e_X_train
     #Add stepa to train data for encoder
