@@ -145,3 +145,39 @@ class Context_Veracity():
     bcv_e_X_train = bcv_encoder.predict(df_posts[['title_count', 'veracity']])
     
     return bcv_e_X_train
+  
+  #Method for Liar dataset
+  def liar_encode(self, X_train):
+    train_news = X_train
+    train_news = train_news.dropna(subset=['label'])
+    import pandas as pd
+    import numpy as np
+    from sklearn.preprocessing import LabelEncoder
+
+    # creating instance of labelencoder
+    labelencoder = LabelEncoder()
+    # Assigning numerical values and storing in another column
+    train_news['label_cat'] = labelencoder.fit_transform(train_news['label'])
+    train_news['veracity'] = 0
+    #Find veracity
+    for index, row in train_news.iterrows():
+      if (train_news.loc[index, 'label'] == 'pants_fire') | (train_news.loc[index, 'label'] == 'barely_true') | (train_news.loc[index, 'label'] == 'false'):
+        if (train_news.loc[index, 'barelytruecounts'] > 4) | (train_news.loc[index, 'falsecounts'] >= 2) | (train_news.loc[index, 'pantsonfirecounts'] >= 1):
+          train_news.loc[index,'veracity'] = 1
+        else:
+          train_news.loc[index,'veracity'] = 0
+      else:
+        if (train_news.loc[index, 'halftruecounts'] >= 2) | (train_news.loc[index, 'mostlytruecounts'] >= 1):
+          train_news.loc[index,'veracity'] = 1
+        else:
+          train_news.loc[index,'veracity'] = 0
+
+    train_news = train_news.dropna(how='any',axis=0)
+    train_news = train_news.rename(columns={'headline_text': 'Statement', 'speaker': 'Source', 'label': 'Label'})
+
+    #Find source count
+    col_to_avg = ['barelytruecounts', 'falsecounts', 'pantsonfirecounts', 'halftruecounts', 'mostlytruecounts']
+    train_news['title_count'] = train_news[col_to_avg].mean(axis=1)
+    train_news['title_count'] = train_news['title_count'].astype(int)
+
+    #Add stepa to train data for encoder
