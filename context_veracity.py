@@ -19,15 +19,15 @@ from googlesearch import search
 
 class Context_Veracity():
   def __init__(self):
-    gdd.download_file_from_google_drive(file_id='17YjVfE6SH_x-iqDvihhov-2N_3o-KJCC',
-                                  dest_path='./context_veracity_model.zip',
+    gdd.download_file_from_google_drive(file_id='18NyBuNHikHiUzrAC4oOMUOO5KAaKouEY',
+                                  dest_path='./context_veracity_models.zip',
                                   unzip=False)
     self.model = None 
     colnames = ['jsonid', 'label', 'headline_text', 'subject', 'speaker', 'speakerjobtitle', 'stateinfo','partyaffiliation', 'barelytruecounts', 'falsecounts','halftruecounts','mostlytruecounts','pantsonfirecounts','context', 'text']
 
     # unpickling models
-    names = ["Linear SVM"]
-    with ZipFile('context_veracity_model.zip', 'r') as myzip:
+    names = ["Random Forest"]
+    with ZipFile('context_veracity_models.zip', 'r') as myzip:
         for name in names:
             self.model = pickle.load(myzip.open(f'{name}_model.pickle'))
             #print(clf_reload)
@@ -41,6 +41,15 @@ class Context_Veracity():
     else:
       veracity = 0
     return self.get_veracity(veracity, source_count)
+  
+  def get_source_count_and_veracity(self, title):
+  #calculate title_count on veracity
+    source_count = self.find_similar_articles(title)
+    if(source_count > 3):
+      veracity = 1
+    else:
+      veracity = 0
+    return (source_count,veracity)
 
   def get_veracity(self, veracity, title_count):
     df = pd.DataFrame(columns=['veracity', 'title_count'])
@@ -115,3 +124,24 @@ class Context_Veracity():
     #print("Count is", count, "and Post is", post)  
     
     return count
+  
+  def encode(self, X_train):
+    bcv_tc = []
+    bcv_v = []
+    for s in X_train['Statement'].tolist():
+        tc, v = cv.get_source_count_and_veracity(s)
+        bcv_tc.append(tc)
+        bcv_v.append(v)
+    bcv_d = {'title_count': bcv_tc, 'veracity': bcv_v}
+    bcv_e_X_train = pd.DataFrame(data=bcv_d)
+    from google_drive_downloader import GoogleDriveDownloader as gdd
+    gdd.download_file_from_google_drive(file_id='1Pu0D6GffO5fBgXVCVnKcEAPr9lrbAYfK',
+                                      dest_path='./bcv_encoder.zip',
+                                      unzip=False)
+    archive = ZipFile('bcv_encoder.zip')
+    for file in archive.namelist():
+        archive.extract(file, '/content/')
+    bcv_encoder = keras.models.load_model('/content/bcv_encoder')
+    bcv_e_X_train = bcv_encoder.predict(df_posts[['title_count', 'veracity']])
+    
+    return bcv_e_X_train
