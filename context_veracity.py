@@ -16,6 +16,7 @@ from zipfile import ZipFile
 import pickle
 from sklearn.feature_extraction.text import CountVectorizer
 from googlesearch import search
+import keras
 
 class Context_Veracity():
   def __init__(self):
