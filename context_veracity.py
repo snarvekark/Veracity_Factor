@@ -163,10 +163,10 @@ class Context_Veracity():
     #Find veracity
     for index, row in train_news.iterrows():
       if (train_news.loc[index, 'barelytruecounts'] > 4) | (train_news.loc[index, 'falsecounts'] >= 2) | (train_news.loc[index, 'pantsonfirecounts'] >= 1):
-        train_news.loc[index,'veracity'] = 1
+        train_news.loc[index,'veracity'] = 0
       else:
         if (train_news.loc[index, 'halftruecounts'] >= 2) | (train_news.loc[index, 'mostlytruecounts'] >= 1):
-          train_news.loc[index,'veracity'] = 0
+          train_news.loc[index,'veracity'] = 1
         
     train_news = train_news.dropna(how='any',axis=0)
     train_news = train_news.rename(columns={'headline_text': 'Statement', 'speaker': 'Source'})
@@ -186,4 +186,3 @@ class Context_Veracity():
     bcv_e_X_train = bcv_encoder.predict(train_news[['title_count', 'veracity']])
     
     return bcv_e_X_train
-    #Add stepa to train data for encoder
