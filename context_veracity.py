@@ -130,7 +130,7 @@ class Context_Veracity():
     bcv_tc = []
     bcv_v = []
     for s in X_train['Statement'].tolist():
-        tc, v = cv.get_source_count_and_veracity(s)
+        tc, v = self.get_source_count_and_veracity(s)
         bcv_tc.append(tc)
         bcv_v.append(v)
     bcv_d = {'title_count': bcv_tc, 'veracity': bcv_v}
