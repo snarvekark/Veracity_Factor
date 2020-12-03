@@ -136,7 +136,7 @@ class Context_Veracity():
     bcv_d = {'title_count': bcv_tc, 'veracity': bcv_v}
     bcv_e_X_train = pd.DataFrame(data=bcv_d)
     
-    gdd.download_file_from_google_drive(file_id='1Pu0D6GffO5fBgXVCVnKcEAPr9lrbAYfK',
+    gdd.download_file_from_google_drive(file_id='1WlnrHBth23ktlNeqb_9Lbd4B-RPxmqPZ',
                                       dest_path='./bcv_encoder.zip',
                                       unzip=False)
     archive = ZipFile('bcv_encoder.zip')
@@ -176,7 +176,7 @@ class Context_Veracity():
     train_news['title_count'] = train_news[col_to_avg].mean(axis=1)
     train_news['title_count'] = train_news['title_count'].astype(int)
     
-    gdd.download_file_from_google_drive(file_id='1Pu0D6GffO5fBgXVCVnKcEAPr9lrbAYfK',
+    gdd.download_file_from_google_drive(file_id='1WlnrHBth23ktlNeqb_9Lbd4B-RPxmqPZ',
                                       dest_path='./bcv_encoder.zip',
                                       unzip=False)
     archive = ZipFile('bcv_encoder.zip')
