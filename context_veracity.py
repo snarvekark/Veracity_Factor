@@ -20,7 +20,7 @@ import keras
 
 class Context_Veracity():
   def __init__(self):
-    gdd.download_file_from_google_drive(file_id='18NyBuNHikHiUzrAC4oOMUOO5KAaKouEY',
+    gdd.download_file_from_google_drive(file_id='19iHtWqr9LuGInNGBV3V3r29yol5TFxcC',
                                   dest_path='./context_veracity_models.zip',
                                   unzip=False)
     self.model = None 
@@ -28,7 +28,7 @@ class Context_Veracity():
 
     # unpickling models
     names = ["Random Forest"]
-    with ZipFile('context_veracity_models.zip', 'r') as myzip:
+    with ZipFile('context_veracity_1203.zip', 'r') as myzip:
         for name in names:
             self.model = pickle.load(myzip.open(f'{name}_model.pickle'))
             #print(clf_reload)
