@@ -21,7 +21,7 @@ import keras
 class Context_Veracity():
   def __init__(self):
     gdd.download_file_from_google_drive(file_id='19iHtWqr9LuGInNGBV3V3r29yol5TFxcC',
-                                  dest_path='./context_veracity_models.zip',
+                                  dest_path='./context_veracity_1203.zip',
                                   unzip=False)
     self.model = None 
     colnames = ['jsonid', 'label', 'headline_text', 'subject', 'speaker', 'speakerjobtitle', 'stateinfo','partyaffiliation', 'barelytruecounts', 'falsecounts','halftruecounts','mostlytruecounts','pantsonfirecounts','context', 'text']
